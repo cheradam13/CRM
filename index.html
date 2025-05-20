@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/media.css">
+    <script defer src="main.js"></script>
+    <title>CRM Project</title>
+</head>
+<body>
+    <div class="popup-container">
+        <div class="popup-container__overlay">
+            <div class="add-popup">
+                <div class="add-popup__content">
+                    <div class="add-popup__top">
+                        <h2 class="add-popup__title">Новый клиент</h2>
+                        <img class="add-popup__cross" src="img/popup-cross.svg" alt="Крестик">
+                    </div>
+                    <form class="add-popup__form">
+                        <div class="add-popup__form--block">
+                            <input class="add-popup__input add-popup__input--surname" type="text" required>
+                            <label class="add-popup__label" for="">Фамилия<span style="color: #9873FF;">*</span></label>
+                        </div>
+                        <div class="add-popup__form--block">
+                            <input class="add-popup__input add-popup__input--name" type="text" required>
+                            <label class="add-popup__label" for="">Имя<span style="color: #9873FF;">*</span></label>
+                        </div>
+                        <div class="add-popup__form--block">
+                            <input class="add-popup__input add-popup__input--lastname" type="text" required>
+                            <label class="add-popup__label" for="">Отчество<span style="color: #9873FF;">*</span></label>
+                        </div>
+            
+                        <span class="add-popup__error--fields">Все поля должны быть заполнены</span>
+    
+                        <div class="add-popup__contacts-wrap">
+                            <ul class="add-popup__contacts-wrap__list"></ul>
+                            
+                            <button class="add-popup__contacts-wrap__btn" type="button">
+                                <img src="img/contacts-add.svg" alt="Плюс">
+                                <span>Добавить контакт</span>
+                            </button>
+                        </div>
+                        <span class="add-popup__error--contacts">Все контакты должны быть заполнены</span>
+                        <span class="add-popup__contactsCount-error">Вы можете добавить только до 10 контактов</span>
+            
+                        <button class="add-popup__submit-btn" type="submit">Сохранить</button>
+                    </form>
+                    <a href="#" class="add-popup__cancel-link">Отмена</a>
+                </div>
+            </div>
+            
+            <div class="change-popup">
+                <div class="change-popup__content">
+                    <div class="change-popup__top">
+                        <h2 class="change-popup__title">Изменить данные</h2>
+                        <span>ID: </span>
+                        <img class="change-popup__cross" src="img/popup-cross.svg" alt="Крестик">
+                    </div>
+                    <form class="change-popup__form">
+                        <div class="change-popup__form--block">
+                            <input class="change-popup__input change-popup__input--surname" type="text" required>
+                            <label class="change-popup__label" for="">Фамилия<span style="color: #9873FF;">*</span></label>
+                        </div>
+                        <div class="change-popup__form--block">
+                            <input class="change-popup__input change-popup__input--name" type="text" required>
+                            <label class="change-popup__label" for="">Имя<span style="color: #9873FF;">*</span></label>
+                        </div>
+                        <div class="change-popup__form--block">
+                            <input class="change-popup__input change-popup__input--lastname" type="text" required>
+                            <label class="change-popup__label" for="">Отчество<span style="color: #9873FF;">*</span></label>
+                        </div>
+            
+                        <span class="change-popup__error">Все поля должны быть заполнены</span>
+                        <span class="change-popup__error change-popup__error--contacts-count">Доступное количество контактов у клиента - 10 контактов</span>
+
+                        <div class="change-popup__contacts-wrap">
+                            <ul class="change-popup__contacts-wrap__list"></ul>
+    
+                            <button class="change-popup__contacts-wrap__btn">
+                                <img src="img/contacts-add.svg" alt="Плюс">
+                                <span>Добавить контакт</span>
+                            </button>
+                        </div>
+            
+                        <button class="change-popup__submit-btn">Сохранить</button>
+                    </form>
+                    <a href="#" class="change-popup__delete-link">Удалить клиента</a>
+                </div>
+            </div>
+    
+            <div class="delete-popup">
+                <div class="delete-popup__content">
+                    <div class="delete-popup__top">
+                        <h2 class="delete-popup__title">Удалить клиента</h2>
+                        <img class="delete-popup__cross" src="img/popup-cross.svg" alt="Крестик">
+                    </div>
+                    <p class="delete-popup__text">
+                        Вы действительно хотите удалить данного клиента?
+                    </p>
+                    <div class="delete-popup__buttons">
+                        <button class="delete-popup__submit-btn">Удалить</button>
+                        <a class="delete-popup__cancel-link" href="#">Отмена</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <header class="header">
+        <div class="container">
+            <div class="header__inner">
+                <a href="#" class="header__logo">
+                    <img class="header__logo-img" src="img/header/logo.svg" alt="Логотип">
+                </a>
+                <input class="header__search" placeholder="Введите запрос" type="text">
+            </div>
+        </div>
+    </header>
+    <main class="main">
+        <div class="container">
+            <h1 class="main-heading">Клиенты</h1>
+            <table width="100%" class="main-table">
+                <tr class="main-table__head-tr">
+                    <th align="left" class="main-table__head-td main-table__head-td--id">
+                        <div>ID</div>
+                    </th>
+                    <th align="left" class="main-table__head-td main-table__head-td--fio">
+                        <div>Фамилия Имя Отчество</div>
+                    </th>
+                    <th align="left" class="main-table__head-td main-table__head-td--create">
+                        <div>Дата и время создания</div>
+                    </th>
+                    <th align="left" class="main-table__head-td main-table__head-td--change">
+                        <div>Последние изменения</div>
+                    </th>
+                    <th align="left" class="main-table__head-td">
+                        <div>Контакты</div>
+                    </th>
+                    <th align="left" class="main-table__head-td">
+                        <div>Действия</div>
+                    </th>
+                </tr>
+            </table>
+            <button class="add-btn">
+                <img class="add-btn__img" src="img/client-add.svg" alt="Добавление">
+                <span class="add-btn__text">Добавить клиента</span>
+            </button>
+        </div>
+    </main>
+</body>
+</html>
