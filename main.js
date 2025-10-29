@@ -90,20 +90,26 @@ function createContactNodesArr(contactsArr) {
 
         currContactWrap.classList.add("contact-td__wrap");
         currContactWrap.setAttribute("data-tooltip", item.value);
+        currContactWrap.style.position = "relative";
         currContactImg.classList.add("contact-td__img");
         currContactImg.setAttribute("data-tooltip", item.value);
         currContactImg.setAttribute("src", `./img/contacts-icons/${item.type}.svg`);
+        currContactText.style.position = "absolute";
+        currContactText.style.top = "-29px";
+        currContactText.style.left = "-43px";
 
-        currContactImg.addEventListener("mouseover", () => {
-            currContactText.style.display = "block";
+        currContactWrap.addEventListener("mouseover", () => {
+            // currContactText.style.display = "inline-block";
+            currContactText.classList.remove("none");
         });
-        currContactImg.addEventListener("mouseout", () => {
-            currContactText.style.display = "none";
+        currContactWrap.addEventListener("mouseout", () => {
+            // currContactText.style.display = "none";
+            currContactText.classList.add("none");
         });
 
         currContactText.classList.add("contact-td__text");
         currContactText.innerHTML = item.value;
-        currContactText.style.display = "none";
+        // currContactText.style.display = "none";
         
         currContactWrap.append(currContactImg, currContactText);
         result.push(currContactWrap);
@@ -188,6 +194,7 @@ function createClientItem(clientObj) {
         changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
 
         clientObj.contacts.forEach((contact, index) => {
+            const allContactsList = document.querySelectorAll(".change-popup__contacts-wrap__item");
             const liNode = document.createElement("li");
             liNode.classList.add("change-popup__contacts-wrap__item");
             liNode.setAttribute("id", index + 1);
@@ -230,13 +237,17 @@ function createClientItem(clientObj) {
                 const contactIndex = Number(liNode.getAttribute("id")) - 1;
                 clientObj.contacts.splice(contactIndex, 1);
                 liNode.remove();
+                    
+                for(const item of allContactsList) {
+                    changePopupFormContactsList.append(item);
+                };
 
                 changeClientAtServer(clientObj, clientObj.id);
 
                 clientsList = getClientsArr();
                 createClientsTable(clientsList);
 
-                changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
+                // changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
             });
             btnNode.append(imgNode);
 
@@ -293,12 +304,16 @@ function createClientItem(clientObj) {
                     clientObj.contacts.splice(contactIndex, 1);
                     liNode.remove();
                     
+                    for(const item of allContactsList) {
+                        changePopupFormContactsList.append(item);
+                    };
+                    
                     changeClientAtServer(clientObj, clientObj.id);
                     
                     clientsList = getClientsArr();
                     createClientsTable(clientsList);
 
-                    changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
+                    // changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
                 });
 
                 btnNode.appendChild(imgNode);
