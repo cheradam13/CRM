@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const localStorageList = getClientsArr();
-
-    if(localStorageList.length !== 0) {
+    
+    if(localStorageList.length > 0) {
         localStorageList.forEach(item => clientsList.push(item));
 
         createClientsTable(clientsList);
@@ -24,7 +24,12 @@ function changeClientAtServer(newClient, oldClientKey) {
 function getClientsArr() {
     const data = {...localStorage};
     let result = [];
-    for(const key in data) result.push(JSON.parse(data[key]));
+
+    if(Object.entries(data).length <= 0) return [];
+
+    for(const key in data) {
+        result.push(JSON.parse(data[key]));
+    };
 
     return result;
 };
