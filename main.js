@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const localStorageList = getClientsArr();
+    const localStorageList = getClientsListFromLocalStorage();
     
     if(localStorageList.length > 0) {
         localStorageList.forEach(item => clientsList.push(item));
@@ -8,20 +8,18 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 });
 
-let clientsList = [];
-
-// СЕРВЕР
-function addClientToServer(client) {
+// LocalStorage
+function addClientToLocalStorage(client) {
     localStorage.setItem(String(client.id), JSON.stringify(client));
 };
-function deleteClientFromServer(key) {
-    localStorage.removeItem(String(key));
+function removeClientFromLocalStorage(client) {
+    localStorage.removeItem(String(client.id));
 };
-function changeClientAtServer(newClient, oldClientKey) {
-    localStorage.removeItem(String(oldClientKey));
-    localStorage.setItem(String(newClient.id), JSON.stringify(newClient));
+function updateClientAtLocalStorage(newClient, oldClientId) {
+    localStorage.removeItem(String(oldClientId));
+    addClientToLocalStorage(newClient);
 };
-function getClientsArr() {
+function getClientsListFromLocalStorage() {
     const data = {...localStorage};
     let result = [];
 
@@ -34,243 +32,231 @@ function getClientsArr() {
     return result;
 };
 
-// ПЕРЕМЕННЫЕ
-const headerSearchInput = document.querySelector(".header__search");
+let clientsList = [];
 
-const table = document.querySelector(".main-table");
+// Переменные
+const mainTable = document.querySelector(".main__table");
+const mainAddBtn = document.querySelector(".main__btn--add");
+
 const popupContainerOverlay = document.querySelector(".popup-container__overlay");
-popupContainerOverlay.style.display = "none";
 
-const addBtn = document.querySelector(".add-btn");
 const addPopup = document.querySelector(".add-popup");
-const addPopupCross = document.querySelector(".add-popup__cross");
+const addPopupCrossImg = document.querySelector(".add-popup__img--cross");
 const addPopupForm = document.querySelector(".add-popup__form");
 const addPopupFormInputs = document.querySelectorAll(".add-popup__input");
 const addPopupFormInputName = document.querySelector(".add-popup__input--name");
 const addPopupFormInputSurName = document.querySelector(".add-popup__input--surname");
 const addPopupFormInputLastName = document.querySelector(".add-popup__input--lastname");
-const addPopupContactsBtn = document.querySelector(".add-popup__contacts-wrap__btn");
-const addPopupFormContactInputs = document.querySelectorAll(".add-popup__contacts-wrap__input");
-const addPopupContactsList = document.querySelector(".add-popup__contacts-wrap__list");
-const addPopupContactsItemsList = document.querySelectorAll(".add-popup__contacts-wrap__item");
+const addPopupContactsBtn = document.querySelector(".add-popup__contacts-btn--add");
+const addPopupFormContactInputs = document.querySelectorAll(".add-popup__contacts-input");
+const addPopupContactsList = document.querySelector(".add-popup__contacts-list");
+const addPopupContactsItemsNodes = document.querySelectorAll(".add-popup__contacts-item");
 const addPopupFormFieldsError = document.querySelector(".add-popup__error--fields");
-const addPopupFormContactsError = document.querySelector(".add-popup__error--contacts");
-const addPopupFormContactsCountError = document.querySelector(".add-popup__contactsCount-error");
-const addPopupCancelLink = document.querySelector(".add-popup__cancel-link");
+const addPopupFormContactsFieldsError = document.querySelector(".add-popup__error--contactsFields");
+const addPopupFormContactsCountError = document.querySelector(".add-popup__error--contactsCount");
+const addPopupCancelLink = document.querySelector(".add-popup__link--cancel");
 
-const changePopup = document.querySelector(".change-popup");
-const changePopupTopSpan = document.querySelector(".change-popup__top").querySelector("span");
-const changePopupCross = document.querySelector(".change-popup__cross");
-const changePopupForm = document.querySelector(".change-popup__form");
-const changePopupFormContactsBtn = document.querySelector(".change-popup__contacts-wrap__btn");
-const changePopupFormContactInputs = document.querySelectorAll(".change-popup__contacts-wrap__input");
-const changePopupFormContactsList = document.querySelector(".change-popup__contacts-wrap__list");
-const changePopupFormContactsItemsList = document.querySelectorAll(".change-popup__contacts-wrap__item");
-const changePopupFormFieldsError = document.querySelector(".change-popup__error");
-const changePopupFormContactsCountError = document.querySelector(".change-popup__error--contacts-count");
-const changePopupFormContactsError = document.querySelector(".change-popup__error");
-const changePopupFormInputs = document.querySelectorAll(".change__popup__input");
-const changePopupFormInputName = document.querySelector(".change-popup__input--name");
-const changePopupFormInputSurName = document.querySelector(".change-popup__input--surname");
-const changePopupFormInputLastName = document.querySelector(".change-popup__input--lastname");
-const changePopupDeleteLink = document.querySelector(".change-popup__delete-link");
+const updatePopup = document.querySelector(".update-popup");
+const updatePopupSpan = document.querySelector(".update-popup__top").querySelector("span");
+const updatePopupCrossImg = document.querySelector(".update-popup__img--cross");
+const updatePopupForm = document.querySelector(".update-popup__form");
+const updatePopupFormContactsBtn = document.querySelector(".update-popup__contacts-btn--add");
+const updatePopupFormContactsList = document.querySelector(".update-popup__contacts-list");
+const updatePopupFormContactsItemsNodes = document.querySelectorAll(".update-popup__contacts-item");
+const updatePopupFormFieldsError = document.querySelector(".update-popup__error--fields");
+const updatePopupFormContactsFieldsError = document.querySelector(".update-popup__error--contactsFields");
+const updatePopupFormContactsCountError = document.querySelector(".update-popup__error--contactsCount");
+const updatePopupFormInputs = document.querySelectorAll(".update-popup__input");
+const updatePopupFormInputName = document.querySelector(".update-popup__input--name");
+const updatePopupFormInputSurName = document.querySelector(".update-popup__input--surname");
+const updatePopupFormInputLastName = document.querySelector(".update-popup__input--lastname");
+const updatePopupRemoveLink = document.querySelector(".update-popup__link--remove");
 
-const deletePopupCross = document.querySelector(".delete-popup__cross");
-const deletePopupCancelLink = document.querySelector(".delete-popup__cancel-link");
-const deletePopup = document.querySelector(".delete-popup");
-const deletePopupSubmitBtn = document.querySelector(".delete-popup__submit-btn");
-const deletePopupError = document.querySelector(".delete-popup__contacts-error");
+const removePopup = document.querySelector(".remove-popup");
+const removePopupCrossImg = document.querySelector(".remove-popup__img--cross");
+const removePopupSubmitBtn = document.querySelector(".remove-popup__btn--submit");
+const removePopupCancelLink = document.querySelector(".remove-popup__link--cancel");
 
-const dateObj = new Date();
-const currDate = dateObj.getUTCDate() + "." + (0 + String(dateObj.getUTCMonth() + 1)) + "." + dateObj.getUTCFullYear() + " " + dateObj.getUTCHours() + ":" + dateObj.getUTCMinutes();
+const date = new Date();
+const currentDate = date.getUTCDate() + "." + (0 + String(date.getUTCMonth() + 1)) + "." + date.getUTCFullYear() + " " + date.getUTCHours() + ":" + date.getUTCMinutes();
 
-// ФУНКЦИИ
-function createContactNodesArr(contactsArr) {
+// Функции
+function clearTable() {
+    const tableTrs = mainTable.querySelectorAll(".main__table-tr");
+    tableTrs.forEach(item => item.remove());
+};
+function getNextId(clientsList) {
+    return clientsList.length > 0 ? clientsList.length + 1 : 1;
+};
+function closePopup(popup, inputs, contactsList, errorFields) {
+    popup.style.display = "none";
+    popupContainerOverlay.style.display = "none";
+    inputs.forEach((input) => input.value = "");
+    contactsList.innerHTML = "";
+    contactsList.style.display = "none";
+    errorFields.forEach((error) => error.style.display = "none");
+};
+
+function createContactsNodes(contactsList) {
     let result = [];
 
-    for(const item of contactsArr) {
-        const currContactWrap = document.createElement("div");
-        const currContactImg = document.createElement("img");
-        const currContactText = document.createElement("span");
+    contactsList.forEach(contact => {
+        const contactDiv = document.createElement("div");
+        contactDiv.classList.add("contact-td__wrap");
+        contactDiv.setAttribute("data-tooltip", contact.value);
+        contactDiv.style.position = "relative";
 
-        currContactWrap.classList.add("contact-td__wrap");
-        currContactWrap.setAttribute("data-tooltip", item.value);
-        currContactWrap.style.position = "relative";
-        currContactImg.classList.add("contact-td__img");
-        currContactImg.setAttribute("data-tooltip", item.value);
-        currContactImg.setAttribute("src", `./img/contacts-icons/${item.type}.svg`);
-        currContactText.style.position = "absolute";
-        currContactText.style.top = "-29px";
-        currContactText.style.left = "-43px";
+        const contactImg = document.createElement("img");
+        contactImg.classList.add("contact-td__img");
+        contactImg.setAttribute("data-tooltip", contact.value);
+        contactImg.setAttribute("src", `./img/contacts-icons/${contact.type}.svg`);
 
-        currContactWrap.addEventListener("mouseover", () => {
-            // currContactText.style.display = "inline-block";
-            currContactText.classList.remove("none");
-        });
-        currContactWrap.addEventListener("mouseout", () => {
-            // currContactText.style.display = "none";
-            currContactText.classList.add("none");
-        });
+        const contactSpan = document.createElement("span");
+        contactSpan.classList.add("contact-td__text");
+        contactSpan.innerHTML = contact.value;
+        contactSpan.style.display = "none";
+        contactSpan.style.position = "absolute";
+        contactSpan.style.top = "-29px";
+        contactSpan.style.left = "-43px";
 
-        currContactText.classList.add("contact-td__text");
-        currContactText.innerHTML = item.value;
-        // currContactText.style.display = "none";
+        contactDiv.addEventListener("mouseover", () => contactSpan.style.display = "block");
+        contactDiv.addEventListener("mouseout", () => contactSpan.style.display = "none");
         
-        currContactWrap.append(currContactImg, currContactText);
-        result.push(currContactWrap);
-    };
+        contactDiv.append(contactImg, contactSpan);
+        result.push(contactDiv);
+    });
 
     return result;
 };
-function createClientsTable(clientsArr) {
-    clearTableFunc();
-    clientsArr.forEach(item => table.append(createClientItem(item)));
+function createClientsTable(clientsList) {
+    clearTable();
+    clientsList.forEach(client => mainTable.append(createClientItem(client)));
 };
-function createClientItem(clientObj) {
+function createClientItem(client) {
     const tr = document.createElement("tr");
-    tr.classList.add("main-table__tr");
+    tr.classList.add("main__table-tr");
 
     const idTd = document.createElement("td");
-    idTd.classList.add("main-table__td");
-    idTd.innerHTML = clientObj.id;
+    idTd.classList.add("main__table-td");
+    idTd.innerHTML = client.id;
 
     const fioTd = document.createElement("td");
-    fioTd.innerHTML = clientObj.surName + " " + clientObj.name + " " + clientObj.lastName;
-    fioTd.classList.add("main-table__td");
+    fioTd.classList.add("main__table-td");
+    fioTd.innerHTML = client.surName + " " + client.name + " " + client.lastName;
 
-    const createTd = document.createElement("td");
-    createTd.innerHTML = `
-        <time datetime="${clientObj.createdAt.substr(0, 10)}">
-            ${clientObj.createdAt.substr(0, 10)}
-            <span>${clientObj.createdAt.slice(11, 18)}</span>
+    const createdAtTd = document.createElement("td");
+    createdAtTd.classList.add("main__table-td");
+    createdAtTd.innerHTML = `
+        <time datetime="${client.createdAt.substr(0, 10)}">
+            ${client.createdAt.substr(0, 10)}
+            <span>${client.createdAt.slice(11, 18)}</span>
         </time>
     `;
-    createTd.classList.add("main-table__td");
 
-    const lastChangeTd = document.createElement("td");
-    lastChangeTd.innerHTML = `
-        <time datetime="${clientObj.updatedAt.substr(0, 10)}">
-            ${clientObj.updatedAt.substr(0, 10)}
-            <span>${clientObj.createdAt.slice(11, 18)}</span>
+    const updatedAtTd = document.createElement("td");
+    updatedAtTd.classList.add("main__table-td");
+    updatedAtTd.innerHTML = `
+        <time datetime="${client.updatedAt.substr(0, 10)}">
+            ${client.updatedAt.substr(0, 10)}
+            <span>${client.createdAt.slice(11, 18)}</span>
         </time>
     `;
-    lastChangeTd.classList.add("main-table__td");
 
     const contactsTd = document.createElement("td");
-    contactsTd.classList.add("main-table__td");
-
-    if (clientObj.contacts.length > 4) {
-        const firstFourContactsList = createContactNodesArr(clientObj.contacts.filter((item, index) => index + 1 < 5));
-        const otherContactsList = createContactNodesArr(clientObj.contacts.filter((item, index) => index + 1 > 4));
-        firstFourContactsList.forEach(item => contactsTd.append(item));
+    contactsTd.classList.add("main__table-td");
+    if (client.contacts.length > 4) {
+        const firstFourContactsNodes = createContactsNodes(client.contacts.filter((contact, index) => index + 1 <= 4));
+        const otherContactsNodes = createContactsNodes(client.contacts.filter((contact, index) => index + 1 > 4));
+        firstFourContactsNodes.forEach(contactNode => contactsTd.append(contactNode));
 
         const spanNode = document.createElement("span");
-        spanNode.classList.add("main-table__contacts-td__more-span");
-        spanNode.innerHTML = "+" + String(otherContactsList.length);
+        spanNode.innerHTML = "+" + String(otherContactsNodes.length);
         spanNode.addEventListener("click", () => {
-            otherContactsList.forEach(item => {
-                contactsTd.append(item);
-                spanNode.style.display = "none";
-            });
+            spanNode.style.display = "none";
+            otherContactsNodes.forEach(contactNode => contactsTd.append(contactNode));
         });
 
         contactsTd.append(spanNode);
     } else {
-        const allContactsList = createContactNodesArr(clientObj.contacts);
-        allContactsList.forEach(item => contactsTd.append(item));
-    }
+        const contactsNodes = createContactsNodes(client.contacts);
+        contactsNodes.forEach(contactNode => contactsTd.append(contactNode));
+    };
 
-    const changeClientTd = document.createElement("td");
-    changeClientTd.innerHTML = `
+    const updateTd = document.createElement("td");
+    updateTd.classList.add("main-table__td");
+    updateTd.innerHTML = `
         <img src="img/edit.svg" alt="Карандаш">
         <span>Изменить</span>
     `;
-    changeClientTd.classList.add("main-table__td");
-
-    changeClientTd.addEventListener("click", () => {
-        changePopup.style.display = "block";
+    updateTd.addEventListener("click", () => {
         popupContainerOverlay.style.display = "flex";
-        changePopupTopSpan.innerHTML = "ID: " + clientObj.id;
-        changePopupFormInputName.value = clientObj.name;
-        changePopupFormInputSurName.value = clientObj.surName;
-        changePopupFormInputLastName.value = clientObj.lastName;
+        updatePopup.style.display = "block";
+        updatePopupSpan.innerHTML = "ID: " + client.id;
+        updatePopupFormInputName.value = client.name;
+        updatePopupFormInputSurName.value = client.surName;
+        updatePopupFormInputLastName.value = client.lastName;
+        updatePopupFormContactsList.innerHTML = "";
+        updatePopupFormContactsList.style.display = client.contacts.length > 0 ? "flex" : "none";
 
-        changePopupFormContactsList.innerHTML = "";
-        changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
+        client.contacts.forEach((contact, index) => {
+            const options = [
+                {type: "phoneNumber", value: "Телефон"},
+                {type: "extraPhoneNumber", value: "Доп. телефон"},
+                {type: "email", value: "Email"},
+                {type: "vk", value: "Vk"},
+                {type: "facebook", value: "Facebook"},
+            ];
 
-        clientObj.contacts.forEach((contact, index) => {
-            const allContactsList = document.querySelectorAll(".change-popup__contacts-wrap__item");
             const liNode = document.createElement("li");
-            liNode.classList.add("change-popup__contacts-wrap__item");
+            liNode.classList.add("update-popup__contacts-item");
             liNode.setAttribute("id", index + 1);
 
             const selectNode = document.createElement("select");
-            selectNode.classList.add("change-popup__contacts-wrap__select");
+            selectNode.classList.add("update-popup__contacts-select");
+            options.forEach(option => {
+                const optionNode = document.createElement("option");
+                optionNode.value = option.value;
+                optionNode.innerHTML = option.value;
 
-            const options = [
-                { value: "Телефон", type: "phoneNumber" },
-                { value: "Доп. телефон", type: "extraPhoneNumber" },
-                { value: "Email", type: "Email" },
-                { value: "Vk", type: "Vk" },
-                { value: "Facebook", type: "Facebook" }
-            ];
-
-            options.forEach(opt => {
-                const option = document.createElement("option");
-                option.value = opt.value;
-                option.innerHTML = opt.value;
-                if (opt.type === contact.type) option.selected = true;
-                selectNode.append(option);
+                if (option.type === contact.type) optionNode.selected = true;
+                selectNode.append(optionNode);
             });
 
             const inputNode = document.createElement("input");
-            inputNode.classList.add("change-popup__contacts-wrap__input");
+            inputNode.classList.add("update-popup__contacts-input");
+            inputNode.value = contact.value ? contact.value : "Введите данные контакта";
             inputNode.setAttribute("type", "text");
             inputNode.setAttribute("required", "");
-            inputNode.value = contact.value;
 
             const btnNode = document.createElement("button");
-            btnNode.classList.add("change-popup__contacts-wrap__cross");
+            btnNode.classList.add("update-popup__contacts-btn--cross");
             btnNode.setAttribute("type", "button");
 
             const imgNode = document.createElement("img");
-            imgNode.classList.add("change-popup__contacts-wrap__cross--img");
+            imgNode.classList.add("update-popup__contacts-img--cross");
             imgNode.setAttribute("src", "img/contacts-cross.svg");
             imgNode.setAttribute("alt", "Крестик");
-            imgNode.addEventListener("click", () => {
-                const liNode = imgNode.parentElement.parentElement;
-                const contactIndex = Number(liNode.getAttribute("id")) - 1;
-                clientObj.contacts.splice(contactIndex, 1);
-                liNode.remove();
-                    
-                for(const item of allContactsList) {
-                    changePopupFormContactsList.append(item);
-                };
-
-                changeClientAtServer(clientObj, clientObj.id);
-
-                clientsList = getClientsArr();
-                createClientsTable(clientsList);
-
-                // changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
+            btnNode.addEventListener("click", () => {
+                imgNode.parentElement.parentElement.remove();
+                
+                // updatePopupFormContactsItemsNodes.forEach(contactItemNode => updatePopupFormContactsList.append(contactItemNode));
             });
-            btnNode.append(imgNode);
 
+            btnNode.append(imgNode);
             liNode.append(selectNode, inputNode, btnNode);
-            changePopupFormContactsList.append(liNode);
+            updatePopupFormContactsList.append(liNode);
         });
 
-        changePopupFormContactsBtn.addEventListener("click", () => {
-            changePopupFormContactsList.style.display = "flex";
+        updatePopupFormContactsBtn.addEventListener("click", () => {
+            updatePopupFormContactsList.style.display = "flex";
 
-            const allContactsList = document.querySelectorAll(".change-popup__contacts-wrap__item");
-            if (allContactsList.length < 10) {
+            if (updatePopupFormContactsItemsNodes.length < 10) {
                 const liNode = document.createElement("li");
-                liNode.classList.add("change-popup__contacts-wrap__item");
-                liNode.setAttribute("id", allContactsList.length + 1);
+                liNode.classList.add("update-popup__contacts-item");
+                liNode.setAttribute("id", updatePopupFormContactsItemsNodes.length + 1);
 
                 const selectNode = document.createElement("select");
-                selectNode.classList.add("change-popup__contacts-wrap__select");
+                selectNode.classList.add("update-popup__contacts-select");
 
                 const phoneOption = document.createElement("option");
                 phoneOption.setAttribute("value", "Телефон");
@@ -291,77 +277,64 @@ function createClientItem(clientObj) {
                 selectNode.append(phoneOption, extraPhoneOption, emailOption, vkOption, facebookOption);
 
                 const inputNode = document.createElement("input");
-                inputNode.classList.add("change-popup__contacts-wrap__input");
+                inputNode.classList.add("update-popup__contacts-input");
                 inputNode.setAttribute("type", "text");
                 inputNode.setAttribute("required", "");
 
                 const btnNode = document.createElement("button");
-                btnNode.classList.add("change-popup__contacts-wrap__cross");
+                btnNode.classList.add("update-popup__contacts-btn--cross");
                 btnNode.setAttribute("type", "button");
 
                 const imgNode = document.createElement("img");
-                imgNode.classList.add("change-popup__contacts-wrap__cross--img");
+                imgNode.classList.add("update-popup__contacts-img--cross");
                 imgNode.setAttribute("src", "img/contacts-cross.svg");
                 imgNode.setAttribute("alt", "Крестик");
-                imgNode.addEventListener("click", () => {
-                    const liNode = imgNode.parentElement.parentElement;
-                    const contactIndex = Number(liNode.getAttribute("id")) - 1;
-                    clientObj.contacts.splice(contactIndex, 1);
-                    liNode.remove();
+                btnNode.addEventListener("click", () => {
+                    imgNode.parentElement.parentElement.remove();
                     
-                    for(const item of allContactsList) {
-                        changePopupFormContactsList.append(item);
-                    };
-                    
-                    changeClientAtServer(clientObj, clientObj.id);
-                    
-                    clientsList = getClientsArr();
-                    createClientsTable(clientsList);
-
-                    // changePopupFormContactsList.style.display = clientObj.contacts.length > 0 ? "flex" : "none";
+                    // updatePopupFormContactsItemsNodes.forEach(contactItemNode => updatePopupFormContactsList.append(contactItemNode));
                 });
 
                 btnNode.appendChild(imgNode);
                 liNode.append(selectNode, inputNode, btnNode);
-                changePopupFormContactsList.appendChild(liNode);
+                updatePopupFormContactsList.appendChild(liNode);
 
-                changePopupFormContactsCountError.style.display = "none";
+                updatePopupFormContactsCountError.style.display = "none";
             } else {
-                changePopupFormContactsCountError.style.display = "block";
-            }
+                updatePopupFormContactsCountError.style.display = "block";
+            };
         });
 
-        changePopupForm.addEventListener("submit", (e) => {
+        updatePopupForm.addEventListener("submit", (e) => {
             e.preventDefault();
 
             let areAllInputsFilled = true;
-
-            for (const item of changePopupFormInputs) {
+            for (const item of updatePopupFormInputs) {
                 if (item.value.trim() === "") {
                     areAllInputsFilled = false;
                     break;
-                }
-            }
+                };
+            };
 
             let areAllContactInputsFilled = true;
-            const contactInputs = changePopupFormContactsList.querySelectorAll(".change-popup__contacts-wrap__input");
+            const contactInputs = updatePopupFormContactsList.querySelectorAll(".update-popup__contacts-input");
             for (const item of contactInputs) {
                 if (item.value.trim() === "") {
                     areAllContactInputsFilled = false;
                     break;
-                }
-            }
+                };
+            };
 
-            if (areAllInputsFilled && areAllContactInputsFilled && changePopupFormContactsList.children.length <= 10) {
-                const changedClientObj = {
-                    id: clientObj.id,
-                    name: changePopupFormInputName.value,
-                    surName: changePopupFormInputSurName.value,
-                    lastName: changePopupFormInputLastName.value,
-                    createdAt: clientObj.createdAt,
-                    updatedAt: currDate,
-                    contacts: Array.from(changePopupFormContactsList.children).map(item => {
-                        const select = item.querySelector(".change-popup__contacts-wrap__select");
+            if (areAllInputsFilled && areAllContactInputsFilled && updatePopupFormContactsList.children.length <= 10) {
+                const updatedClient = {
+                    id: client.id,
+                    name: updatePopupFormInputName.value,
+                    surName: updatePopupFormInputSurName.value,
+                    lastName: updatePopupFormInputLastName.value,
+                    createdAt: client.createdAt,
+                    updatedAt: currentDate,
+                    contacts: Array.from(updatePopupFormContactsList.children).map(item => {
+                        const select = item.querySelector(".update-popup__contacts-select");
                         const contactTypeValue = {
                             "телефон": "phoneNumber",
                             "доп. телефон": "extraPhoneNumber",
@@ -371,118 +344,105 @@ function createClientItem(clientObj) {
                         }[select.options[select.selectedIndex].text.toLowerCase()];
                         return {
                             type: contactTypeValue,
-                            value: item.querySelector(".change-popup__contacts-wrap__input").value
+                            value: item.querySelector(".update-popup__contacts-input").value
                         };
                     })
                 };
 
-                changeClientAtServer(changedClientObj, clientObj.id);
-                clientsList = getClientsArr();
+                updateClientAtLocalStorage(updatedClient, client.id);
+
+                clientsList = getClientsListFromLocalStorage();
                 createClientsTable(clientsList);
-                closePopup(changePopup, changePopupFormInputs, changePopupFormContactsList, [
-                    changePopupFormFieldsError, changePopupFormContactsError, changePopupFormContactsCountError,
-                ]);
+
+                closePopup(
+                    updatePopup, updatePopupFormInputs, updatePopupFormContactsList,
+                    [updatePopupFormFieldsError, updatePopupFormContactsFieldsError, updatePopupFormContactsCountError]
+                );
             } else {
-                if (!areAllInputsFilled) changePopupFormFieldsError.style.display = "block";
-                if (!areAllContactInputsFilled) changePopupFormContactsError.style.display = "block";
-                if (changePopupFormContactsList.children.length > 10) changePopupFormContactsCountError.style.display = "block";
-            }
+                if (!areAllInputsFilled) updatePopupFormFieldsError.style.display = "block";
+                if (!areAllContactInputsFilled) updatePopupFormContactsFieldsError.style.display = "block";
+                if (updatePopupFormContactsList.children.length > 10) updatePopupFormContactsCountError.style.display = "block";
+            };
         });
 
-        changePopupCross.addEventListener("click", () => {
-            closePopup(changePopup, changePopupFormInputs, changePopupFormContactsList, [
-                changePopupFormFieldsError, changePopupFormContactsError, changePopupFormContactsCountError,
-            ]);
+        updatePopupCrossImg.addEventListener("click", () => {
+            closePopup(
+                updatePopup, updatePopupFormInputs, updatePopupFormContactsList,
+                [updatePopupFormFieldsError, updatePopupFormContactsCountError]
+            );
         });
 
-        changePopupDeleteLink.addEventListener("click", () => {
-            deleteClientFromServer(clientObj.id);
-            clientsList = getClientsArr();
+        updatePopupRemoveLink.addEventListener("click", () => {
+            removeClientFromLocalStorage(client);
+            clientsList = getClientsListFromLocalStorage();
             createClientsTable(clientsList);
-            changePopup.style.display = "none";
+
+            updatePopup.style.display = "none";
             popupContainerOverlay.style.display = "none";
         });
     });
 
-    const deleteClientTd = document.createElement("td");
-    deleteClientTd.innerHTML = `
+    const removeTd = document.createElement("td");
+    removeTd.classList.add("main-table__td");
+    removeTd.innerHTML = `
         <img src="img/cancel.svg" alt="Крестик">
         <span>Удалить</span>
     `;
-    deleteClientTd.classList.add("main-table__td");
-
-    deleteClientTd.addEventListener("click", () => {
-        deletePopup.style.display = "block";
+    removeTd.addEventListener("click", () => {
+        removePopup.style.display = "block";
         popupContainerOverlay.style.display = "flex";
 
-        deletePopupSubmitBtn.addEventListener("click", () => {
-            deleteClientFromServer(clientObj.id);
-            clientsList = getClientsArr();
+        removePopupSubmitBtn.addEventListener("click", () => {
+            removeClientFromLocalStorage(client);
+
+            clientsList = getClientsListFromLocalStorage();
             createClientsTable(clientsList);
+
             popupContainerOverlay.style.display = "none";
-            deletePopup.style.display = "none";
+            removePopup.style.display = "none";
         });
     });
 
-    tr.append(idTd, fioTd, createTd, lastChangeTd, contactsTd, changeClientTd, deleteClientTd);
+    tr.append(idTd, fioTd, createdAtTd, updatedAtTd, contactsTd, updateTd, removeTd);
     return tr;
 };
-const clearTableFunc = () => {
-    const tableTrs = table.querySelectorAll("tr");
-    tableTrs.forEach(item => {
-        if(!item.classList.contains("main-table__head-tr")) item.remove();
-    });
-};
 
-function getNextId(clientsArray) {
-    return clientsArray.length > 0 ? clientsArray.length + 1 : 1;
-};
-
-function closePopup(popup, inputs, contactsList, errorFields) {
-    popup.style.display = "none";
-    popupContainerOverlay.style.display = "none";
-    inputs.forEach((input) => input.value = "");
-    contactsList.innerHTML = "";
-    contactsList.style.display = "none";
-    errorFields.forEach((error) => error.style.display = "none");
-};
-
-// ОБРАБОТЧИКИ СОБЫТИЙ
-addBtn.addEventListener("click", () => {
+// Обработчики событий
+mainAddBtn.addEventListener("click", () => {
     addPopup.style.display = "block";
     popupContainerOverlay.style.display = "flex";
 });
+
 addPopupForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    // Валидация
     let areAllInputsFilled = true;
     let areAllContactInputsFilled = true;
     for(const item of addPopupFormInputs) {
         if(item.value.trim() === "") {
             areAllInputsFilled = false;
             break;
-        }
+        };
     };
-    if(addPopupContactsItemsList.length !== 0) {
+    if(addPopupContactsItemsNodes.length !== 0) {
         for(const item of addPopupFormContactInputs) {
             if(item.value.trim() === "") {
                 areAllContactInputsFilled = false;
                 break;
-            }
+            };
         };
-    }
+    };
     
     if (areAllInputsFilled && areAllContactInputsFilled && addPopupContactsList.children.length <= 10) {
-        const clientObj = {
+        const client = {
             id: getNextId(clientsList),
             name: addPopupFormInputName.value,
             surName: addPopupFormInputSurName.value,
             lastName: addPopupFormInputLastName.value,
-            createdAt: currDate,
-            updatedAt: currDate,
+            createdAt: currentDate,
+            updatedAt: currentDate,
             contacts: Array.from(addPopupContactsList.children).map(item => {
-                const select = item.querySelector(".add-popup__contacts-wrap__select");
+                const select = item.querySelector(".add-popup__contacts-select");
                 const contactTypeValue = {
                     "телефон": "phoneNumber",
                     "доп. телефон": "extraPhoneNumber",
@@ -492,50 +452,43 @@ addPopupForm.addEventListener("submit", (e) => {
                 }[select.options[select.selectedIndex].text.toLowerCase()];
                 return {
                     type: contactTypeValue,
-                    value: item.querySelector(".add-popup__contacts-wrap__input").value
+                    value: item.querySelector(".add-popup__contacts-input").value
                 };
             })
         };
 
-        addClientToServer(clientObj);
-        clientsList = getClientsArr();
+        addClientToLocalStorage(client);
+
+        clientsList = getClientsListFromLocalStorage();
         createClientsTable(clientsList);
-        closePopup(addPopup, addPopupFormInputs, addPopupContactsList, [
-            addPopupFormFieldsError,
-            addPopupFormContactsError,
-            addPopupFormContactsCountError
-        ]);
+        
+        closePopup(
+            addPopup, addPopupFormInputs, addPopupContactsList,
+            [addPopupFormFieldsError, addPopupFormContactsFieldsError, addPopupFormContactsCountError]
+        );
     } else {
         if (!areAllInputsFilled) addPopupFormFieldsError.style.display = "block";
-        if (!areAllContactInputsFilled) addPopupFormContactsError.style.display = "block";
+        if (!areAllContactInputsFilled) addPopupFormContactsFieldsError.style.display = "block";
         if (addPopupContactsList.children.length > 10) addPopupFormContactsCountError.style.display = "block";
     };
 });
-
-addPopupCross.addEventListener("click", () => {
-    closePopup(addPopup, addPopupFormInputs, addPopupContactsList, [
-        addPopupFormFieldsError,
-        addPopupFormContactsError,
-        addPopupFormContactsCountError
-    ]);
+[addPopupCrossImg, addPopupCancelLink].forEach(item => {
+    item.addEventListener("click", () => {
+        closePopup(
+            addPopup, addPopupFormInputs, addPopupContactsList,
+            [addPopupFormFieldsError, addPopupFormContactsFieldsError, addPopupFormContactsCountError]
+        );
+    });
 });
-addPopupCancelLink.addEventListener("click", () => {
-    closePopup(addPopup, addPopupFormInputs, addPopupContactsList, [
-        addPopupFormFieldsError,
-        addPopupFormContactsError,
-        addPopupFormContactsCountError
-    ]);
-});
-
 addPopupContactsBtn.addEventListener("click", () => {
     addPopupContactsList.style.display = "flex";
     
-    if(addPopupContactsItemsList.length < 10) {
+    if(addPopupContactsItemsNodes.length < 10) {
         const liNode = document.createElement("li");
-        liNode.classList.add("add-popup__contacts-wrap__item");
+        liNode.classList.add("add-popup__contacts-item");
         
         const selectNode = document.createElement("select");
-        selectNode.classList.add("add-popup__contacts-wrap__select");
+        selectNode.classList.add("add-popup__contacts-select");
 
         const phoneOption = document.createElement("option");
         phoneOption.setAttribute("value", "Телефон");
@@ -556,18 +509,18 @@ addPopupContactsBtn.addEventListener("click", () => {
         selectNode.append(phoneOption, extraPhoneOption, emailOption, vkOption, facebookOption);
 
         const inputNode = document.createElement("input");
-        inputNode.classList.add("add-popup__contacts-wrap__input");
+        inputNode.classList.add("add-popup__contacts-input");
         inputNode.setAttribute("type", "text");
 
         const btnNode = document.createElement("button");
-        btnNode.classList.add("add-popup__contacts-wrap__cross");
+        btnNode.classList.add("add-popup__contacts-btn--cross");
         btnNode.setAttribute("type", "button");
         
         const imgNode = document.createElement("img");
-        imgNode.classList.add("add-popup__contacts-wrap__cross--img");
+        imgNode.classList.add("add-popup__contacts-img--cross");
         imgNode.setAttribute("src", "img/contacts-cross.svg");
         imgNode.setAttribute("alt", "Крестик");
-        imgNode.addEventListener("click", () => {
+        btnNode.addEventListener("click", () => {
             imgNode.parentElement.parentElement.remove();
         });
 
@@ -581,86 +534,66 @@ addPopupContactsBtn.addEventListener("click", () => {
     };
 });
 
-deletePopupCross.addEventListener("click", () => {
-    deletePopup.style.display = "none";
-    popupContainerOverlay.style.display = "none";
-});
-deletePopupCancelLink.addEventListener("click", () => {
-    deletePopup.style.display = "none";
-    popupContainerOverlay.style.display = "none";
+[removePopupCrossImg, removePopupCancelLink].forEach(item => {
+    item.addEventListener("click", () => {
+        removePopup.style.display = "none";
+        popupContainerOverlay.style.display = "none";
+    });
 });
 
-// СОРТИРОВКА
+// Сортировка
 function sorting(arr, prop, direction = false) {
-    let filteredArr = arr.sort((a, b) => 
-    (direction ? a[prop] < b[prop] : a[prop] > b[prop]) ? -1 : 0);
-
-    return filteredArr;
-};
-
-const tableTitleId = document.querySelector(".main-table__head-td--id");
-const tableTitleFio = document.querySelector(".main-table__head-td--fio");
-const tableTitleCreate = document.querySelector(".main-table__head-td--create");
-const tableTitleChange = document.querySelector(".main-table__head-td--change");
-
-tableTitleId.addEventListener("click", () => {
-    clearTableFunc();
-
-    tableTitleId.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "id", false)) : createClientsTable(sorting(clientsList, "id", true));
-    tableTitleId.classList.contains("sorted") ? tableTitleId.classList.remove("sorted") : tableTitleId.classList.add("sorted");
-});
-tableTitleFio.addEventListener("click", () => {
-    clearTableFunc();
-
-    tableTitleFio.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "name", false)) : createClientsTable(sorting(clientsList, "name", true));
-    tableTitleFio.classList.contains("sorted") ? tableTitleFio.classList.remove("sorted") : tableTitleFio.classList.add("sorted");
-});
-tableTitleCreate.addEventListener("click", () => {
-    clearTableFunc();
-
-    tableTitleCreate.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "createdAt", false)) : createClientsTable(sorting(clientsList, "createdAt", true));
-    tableTitleCreate.classList.contains("sorted") ? tableTitleCreate.classList.remove("sorted") : tableTitleCreate.classList.add("sorted");
-});
-tableTitleChange.addEventListener("click", () => {
-    clearTableFunc();
-
-    tableTitleChange.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "createdAt", false)) : createClientsTable(sorting(clientsList, "createdAt", true));
-    tableTitleChange.classList.contains("sorted") ? tableTitleChange.classList.remove("sorted") : tableTitleChange.classList.add("sorted");
-});
-
-// ПОИСК
-function filterClientsListByFio(arr, value) {
-    let result = [];
-    copy = [...arr];
-
-    for (const item of copy) {
-        if (String(item.surName + " " + item.name + " " + item.lastName).includes(value)) {
-            result.push(item);
-        }
-    };
+    let result = arr.sort((a, b) => (direction ? a[prop] < b[prop] : a[prop] > b[prop]) ? -1 : 0);
 
     return result;
 };
 
+const mainTableIdTd = document.querySelector(".main__table-th--id");
+const mainTableFioTd = document.querySelector(".main__table-th--fio");
+const mainTableCreatedAtTd = document.querySelector(".main__table-th--createdAt");
+const mainTableUpdatedAtTd = document.querySelector(".main__table-th--updatedAt");
+
+mainTableIdTd.addEventListener("click", () => {
+    clearTable();
+
+    mainTableIdTd.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "id", false)) : createClientsTable(sorting(clientsList, "id", true));
+    mainTableIdTd.classList.contains("sorted") ? mainTableIdTd.classList.remove("sorted") : mainTableIdTd.classList.add("sorted");
+});
+mainTableFioTd.addEventListener("click", () => {
+    clearTable();
+
+    mainTableFioTd.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "name", false)) : createClientsTable(sorting(clientsList, "name", true));
+    mainTableFioTd.classList.contains("sorted") ? mainTableFioTd.classList.remove("sorted") : mainTableFioTd.classList.add("sorted");
+});
+mainTableCreatedAtTd.addEventListener("click", () => {
+    clearTable();
+
+    mainTableCreatedAtTd.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "createdAt", false)) : createClientsTable(sorting(clientsList, "createdAt", true));
+    mainTableCreatedAtTd.classList.contains("sorted") ? mainTableCreatedAtTd.classList.remove("sorted") : mainTableCreatedAtTd.classList.add("sorted");
+});
+mainTableUpdatedAtTd.addEventListener("click", () => {
+    clearTable();
+
+    mainTableUpdatedAtTd.classList.contains("sorted") ? createClientsTable(sorting(clientsList, "updatedAt", false)) : createClientsTable(sorting(clientsList, "updatedAt", true));
+    mainTableUpdatedAtTd.classList.contains("sorted") ? mainTableUpdatedAtTd.classList.remove("sorted") : mainTableUpdatedAtTd.classList.add("sorted");
+});
+
+// Поиск
+function filterByFio(arr, searchValue) {
+    let result = [];
+    copy = [...arr];
+
+    copy.forEach(item => {
+        if (String(item.surName + " " + item.name + " " + item.lastName).toLowerCase().includes(searchValue.toLowerCase())) result.push(item);
+    });
+
+    return result;
+};
+
+const headerSearchInput = document.querySelector(".header__search");
 headerSearchInput.addEventListener("input", () => {
-    const value = headerSearchInput.value.trim();
-    createClientsTable(value ? filterClientsListByFio(clientsList, value) : clientsList);
+    const searchValue = headerSearchInput.value.trim();
+    createClientsTable(value ? filterByFio(clientsList, searchValue) : clientsList);
 });
 
 createClientsTable(clientsList);
-
-// const exampleObj = {
-//     id: 1,
-//     name: "Адам",
-//     surName: "Черешнюк",
-//     lastName: "Викторович",
-//     createdAt: "16.05.2025 17:11",
-//     updatedAt: "16.05.2025 17:11",
-//     contacts: [
-//         {type: "phoneNumber", value: "+7 913 242 12-25"},
-//         {type: "extraPhoneNumber", value: "extraPhoneNumber"},
-//         {type: "email", value: "email"},
-//         {type: "vk", value: "vk"},
-//         {type: "facebook", value: "facebook"},
-//     ]
-// };
